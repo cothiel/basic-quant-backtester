@@ -23,7 +23,6 @@ def pull_sp500_data():
     r = requests.get(spWikipediaUrl, headers=headers)
 
     tickerTable = pd.read_html(StringIO(r.text)) # Was getting an error when not using StringIO, apparently pandas prefers read_html uses a filelike object 
-    print(tickerTable[0].head())
 
     # Save all the tickers used in S&P 500 to list
     tickerList = tickerTable[0]['Symbol'][0:5] # Testing with only 5
@@ -44,9 +43,7 @@ def pull_sp500_data():
         df = yf.download(
             ticker,
 
-            period="20y",
-
-            interval = "1d",
+            start="2000-01-01",
 
             auto_adjust=True,
 
@@ -66,8 +63,9 @@ def save_individual_ticker_to_parquet(df, ticker, filename):
         df.columns = df.columns.get_level_values(0)
 
     df.columns = [c.replace(' ', '_') for c in df.columns] # Replaces the " " in all columns. Not super useful here since the only " " is in adj close but good to be safe
-
-    df.to_parquet(filename, engine="pyarrow", index=False)
+    df.reset_index()
+    print(df.head())
+    df.to_parquet(filename, engine="pyarrow", index=True)
     print("Saved to " + str(filename))
 
 pull_sp500_data()

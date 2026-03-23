@@ -15,11 +15,13 @@ def main():
     testDate = '1/1/2020'
     print(tickers)
     for ticker in tickers:
-        print("Ticker1: ", ticker)
         calculateMovingAverage(ticker)
 
 def calculateMovingAverage(ticker):
     df = pd.read_parquet(dataFolder / f"{ticker}_data.parquet")
-    print("Ticker: ", ticker)
     
+    print("Ticker: ", ticker)
+    df['SMA'] = df['Close'].rolling(window=20).mean().fillna(0)
+    df['SD'] = df['Close'].rolling(window=20).std().fillna(0)
+    print(df['SD'])
 main()
